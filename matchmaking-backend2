@@ -1,0 +1,54 @@
+# import statement
+from pymongo import MongoClient
+
+# Connect to MongoDB
+client = MongoClient("mongodb+srv://yutoneteru:Test123@skillswap.yhxq3.mongodb.net/")
+db = client["SkillSwap"]
+users_collection = db["UserSkills"]
+
+# add user
+def add_user(username, teaches, wants_to_learn):
+    user = {
+        "username": username,
+        "teaches": teaches,
+        "wants_to_learn": wants_to_learn
+    }
+    users_collection.insert_one(user)
+    print(f"User {username} added.")
+
+# finds suitable matches for user
+def find_matches(username):
+    # Find the user in the database
+    user = users_collection.find_one({"username": username})
+    if not user:
+        print("User not found!")
+        return []
+
+    # Get the user's teaches and wants_to_learn
+    user_teaches = user["teaches"]
+    user_wants_to_learn = user["wants_to_learn"]
+
+    # Find potential matches
+    matches = users_collection.find({
+        "$and": [
+            {"teaches": {"$in": user_wants_to_learn}},
+            {"wants_to_learn": {"$in": user_teaches}},
+            {"username": {"$ne": username}}  # Exclude the user themselves
+        ]
+    })
+
+    # Return the list of matches
+    return list(matches)
+
+# TESTER FOR MATCHMAKING SYSTEM
+if __name__ == "__main__":
+    # Add some users
+    add_user("john_doe", ["Python", "Web Development"], ["Video Editing", "Graphic Design"])
+    add_user("jane_doe", "Video Editing", "Python")
+    add_user("mark_smith", "Graphic Design", "Python")
+
+    # Find matches for john_doe
+    matches = find_matches("john_doe")
+    print("\nMatches for john_doe:")
+    for match in matches:
+        print(match)
