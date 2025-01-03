@@ -19,12 +19,10 @@ import type { ElysiaApp } from "../index";
 export default (app: ElysiaApp) => {
     return app.get("/", ({ set }) => {     
 
-        return () => {
-            set.status = 200;
-            return {
-                statusCode: set.status,
-                message: "API is Online"
-            };
+        set.status = 200;
+        return {
+            statusCode: set.status,
+            message: "API is Online"
         };
     });
 };

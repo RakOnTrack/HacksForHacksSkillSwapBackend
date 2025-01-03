@@ -13,6 +13,8 @@
 // Imports
 import { Elysia } from "elysia";
 import { autoroutes } from "elysia-autoroutes";
+import { connect } from "mongoose";
+import * as user from "./models/user";
 
 // Elysia App
 const app = new Elysia();
@@ -22,6 +24,14 @@ app.use(autoroutes({
     routesDir: __dirname+"/routes",
     prefix: "/api"
 }));
+
+// Database Connection
+if (!Bun.env.MONGO_URI) throw new Error("💾 Database Connection Error: No URI Provided");
+connect(Bun.env.MONGO_URI).then(() => {
+    console.log("💾 Database Connection Established");
+}).catch((err) => {
+    console.error("💾 Database Connection Error: ", err);
+});
 
 // Server Initialization
 app.listen(3000, (server) => {
