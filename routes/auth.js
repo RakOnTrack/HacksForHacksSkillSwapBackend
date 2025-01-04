@@ -4,8 +4,9 @@ const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 
 // Register route
+// Register route
 router.post("/register", async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, userType } = req.body;
   try {
     // Check if username or email already exists
     const existingUser = await User.findOne({ $or: [{ username }, { email }] });
@@ -13,10 +14,8 @@ router.post("/register", async (req, res) => {
       return res
         .status(400)
         .json({ message: "Username or email already exists" });
-    }
-
-    // Create new user
-    const newUser = new User({ username, email, password });
+    } // Create new user
+    const newUser = new User({ username, email, password, userType }); // Include userType
     await newUser.save();
     res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
@@ -38,6 +37,7 @@ router.post("/login", async (req, res) => {
         id: user._id,
         username: user.username,
         email: user.email,
+        userType: user.userType,
       },
       process.env.JWT_SECRET,
       {
