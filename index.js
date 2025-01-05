@@ -4,6 +4,9 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
+const requestRoutes = require('./routes/request');
+const skillRoutes = require('./routes/skill');
+const messageRoutes = require('./routes/message');
 
 dotenv.config();
 
@@ -21,6 +24,10 @@ mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopol
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/request', requestRoutes);
+app.use('/api/skill', skillRoutes);
+app.use('/api/message', messageRoutes);
+
 
 // Server
 const PORT = process.env.PORT || 3000;

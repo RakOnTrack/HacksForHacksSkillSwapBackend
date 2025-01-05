@@ -41,7 +41,7 @@ router.post("/login", async (req, res) => {
       },
       process.env.JWT_SECRET,
       {
-        expiresIn: "1h",
+        expiresIn: "2d",
       }
     );
     res.status(200).json({ token });
