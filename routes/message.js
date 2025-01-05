@@ -1,12 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const Message = require("../models/Message");
-const verifyToken = require("../middleware/auth");
 const User = require("../models/User");
+const Request = require("../models/Request");
+const verifyToken = require("../middleware/auth");
 
 // Create a new message
 router.post("/", verifyToken, async (req, res) => {
-  const { receiverId, content } = req.body;
+  const { receiverId, content, requestId } = req.body;
   const senderId = req.user._id;
   const senderUsername = req.user.username;
 
@@ -17,12 +18,20 @@ router.post("/", verifyToken, async (req, res) => {
     }
     const receiverUsername = receiverUser.username;
 
+    const request = await Request.findById(requestId);
+    if (!request) {
+      return res.status(404).json({ message: "Request not found" });
+    }
+    const requestName = request.skillName;
+
     const newMessage = new Message({
       senderId,
       receiverId,
       content,
       senderUsername,
       receiverUsername,
+      requestId,
+      requestName, // Add the request name here
     });
     await newMessage.save();
     res.status(201).json(newMessage);
@@ -31,7 +40,6 @@ router.post("/", verifyToken, async (req, res) => {
   }
 });
 
-module.exports = router;
 
 // Read all messages
 router.get("/", verifyToken, async (req, res) => {

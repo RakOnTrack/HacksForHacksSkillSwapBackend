@@ -2,15 +2,23 @@ const express = require("express");
 const router = express.Router();
 const Request = require("../models/Request");
 const verifyToken = require("../middleware/auth");
+const Skill = require("../models/Skill")
 
 // Create a new request
 router.post("/", verifyToken, async (req, res) => {
   const { requesterId, providerId, skillId, status } = req.body;
   try {
+    // Find the skill by its ID to get the name
+    const skill = await Skill.findById(skillId);
+    if (!skill) {
+      return res.status(404).json({ message: "Skill not found" });
+    }
+
     const newRequest = new Request({
       requesterId,
       providerId,
       skillId,
+      skillName: skill.name,
       status,
     });
     await newRequest.save();
@@ -44,12 +52,12 @@ router.get("/:id", verifyToken, async (req, res) => {
 });
 
 // Update a request
-router.put("/:id", verifyToken, async (req, res) => {
-  const { status, providerId } = req.body;
+router.patch("/:id/status", verifyToken, async (req, res) => {
+  const { status } = req.body;
   try {
     const request = await Request.findByIdAndUpdate(
       req.params.id,
-      { status, providerId, updatedAt: Date.now() },
+      { status, updatedAt: Date.now() },
       { new: true }
     );
     if (!request) {
@@ -73,5 +81,4 @@ router.delete("/:id", verifyToken, async (req, res) => {
     res.status(400).json({ message: "Error deleting request", error });
   }
 });
-
 module.exports = router;
